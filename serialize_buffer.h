@@ -7,13 +7,7 @@
 class SerializeBuffer
 {
 private:
-	static constexpr size_t MAX_SIZE = 20000;
-
-private:
-	char* buff_;
-	size_t read_pos_;
-	size_t write_pos_;
-	size_t capacity_;
+	static constexpr size_t MAX_SIZE = 16;
 
 public:
 	SerializeBuffer(size_t len = MAX_SIZE) : read_pos_(0), write_pos_(0)
@@ -584,11 +578,13 @@ public:
 	}
 
 public:
+	// tail
 	char* write_pos() const noexcept
 	{
 		return buff_ + write_pos_;
 	}
 
+	// head
 	char* read_pos() const noexcept
 	{
 		return buff_ + read_pos_;
@@ -604,16 +600,19 @@ public:
 		return capacity_;
 	}
 
+	// 사용량
 	size_t size() const noexcept
 	{
 		return (write_pos_ - read_pos_);
 	}
 
+	// 가용량
 	size_t available() const noexcept
 	{
 		return (capacity_ - write_pos_);
 	}
 
+	// move_tail
 	size_t move_write_pos(size_t len) noexcept
 	{
 		size_t remaining = capacity_ - write_pos_;
@@ -624,6 +623,7 @@ public:
 		return move_size;
 	}
 
+	// move_head
 	size_t move_read_pos(size_t len) noexcept
 	{
 		size_t data_size = write_pos_ - read_pos_;
@@ -634,6 +634,7 @@ public:
 		return move_size;
 	}
 
+	// enqueue
 	size_t write(const char* src, size_t len) noexcept
 	{
 		if (capacity_ - write_pos_ < len)
@@ -647,6 +648,7 @@ public:
 		return len;
 	}
 
+	// dequeue
 	size_t read(char* dest, size_t len) noexcept
 	{
 		if (write_pos_ - read_pos_ < len)
@@ -677,4 +679,10 @@ public:
 		read_pos_ = 0;
 		write_pos_ = 0;
 	}
+
+private:
+	char* buff_;
+	size_t read_pos_; // head
+	size_t write_pos_; // tail
+	size_t capacity_;
 };
